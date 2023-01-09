@@ -10,36 +10,32 @@ soup = BeautifulSoup(page.text, 'html.parser')
 
 links = soup.find_all('a')
 
+log = ()
+
+logTxt = open('C:/Users/ukika/Desktop/learnPython3/dead_links/log.txt', 'w')
 for link in links:
     try:
         link_url = link.get('href')
         if link_url is None:
-            print('link url is None')
-            print('\n')
             continue
         if link_url == '':
-            print('link url = \'\'')
-            print('\n')
             continue
         if link_url[0] == '/':
-            print('link_url:', link_url)
             full_link_url = main_url + link_url[1:]
-            print('full_link_url:', full_link_url)
-            print('\n')
         elif link_url[0] == '#':
-            print('link_url:', link_url)
             full_link_url = main_url + link_url
-            print('full_link_url:', full_link_url)
-            print('\n')
         else: 
-            print('link_url[0] != \'/\' or #')
-            print('\n')
             full_link_url = link_url
-        response = requests.get(full_link_url)
+        
 
+        response = requests.get(full_link_url)
         if response.status_code == 404:
+            link_status = 'Link is not working'
+            log += ((full_link_url, link_status), )
             print('Link is not working:', full_link_url)
         else:
+            link_status = 'Link is working'
+            log += ((full_link_url, link_status), )
             print('Link is working:', full_link_url)
     except NameError:
         # print('')
@@ -49,11 +45,12 @@ for link in links:
         print('IndexError in link_url=', link_url)
         print('\n')
     except requests.exceptions.InvalidSchema:
-        print('InvalidSchema')
+        print(f'InvalidSchema: {full_link_url}')
         print('\n')
     except TypeError:
         print('\n')
-
+logTxt.write(str(log))
+logTxt.close()
 print('\nEND')
 
 
