@@ -12,7 +12,11 @@ links = soup.find_all('a')
 
 log = ()
 
-logTxt = open('C:/Users/ukika/Desktop/learnPython3/dead_links/log.txt', 'w')
+def logWriteClose(log):
+    logTxt = open('C:/Users/ukika/Desktop/learnPython3/dead_links/log.txt', 'w')
+    logTxt.write(str(log))
+    logTxt.close()
+
 for link in links:
     try:
         link_url = link.get('href')
@@ -31,11 +35,12 @@ for link in links:
         response = requests.get(full_link_url)
         if response.status_code == 404:
             link_status = 'Link is not working'
-            log += ((full_link_url, link_status), )
+            log += ((full_link_url, link_status),)
             print('Link is not working:', full_link_url)
         else:
             link_status = 'Link is working'
-            log += ((full_link_url, link_status), )
+            log += ((full_link_url, link_status),)
+            logWriteClose(log)
             print('Link is working:', full_link_url)
     except NameError:
         # print('')
@@ -49,8 +54,9 @@ for link in links:
         print('\n')
     except TypeError:
         print('\n')
-logTxt.write(str(log))
-logTxt.close()
+
+
+logWriteClose(log)
 print('\nEND')
 
 
