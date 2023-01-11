@@ -50,19 +50,21 @@ for link in links:
         else:
             link_status = 'Link is working'
             log += ((full_link_url, link_status),)
-            logWriteClose(log)
             print('Link is working:', full_link_url)
     except NameError:
-        # print('')
-        # print('\n')
-        print('\nNot link:', link_url)
+        print(f'NameError: {full_link_url}, {link_url}')
+        print('\n')
     except IndexError:
-        print('IndexError in link_url=', link_url)
+        print(f'IndexError: {full_link_url}, {link_url}')
         print('\n')
     except requests.exceptions.InvalidSchema:
-        print(f'InvalidSchema: {full_link_url}')
+        print(f'requests.exceptions.InvalidSchema: {full_link_url}, {link_url}')
         print('\n')
     except TypeError:
+        print(f'TypeError: {full_link_url}, {link_url}')
+        print('\n')
+    except requests.exceptions.MissingSchema:
+        print(f'requests.exceptions.MissingSchema: {full_link_url}, {link_url}')
         print('\n')
 
 with sq.connect("dead_links/log.db") as con:
@@ -75,8 +77,7 @@ with sq.connect("dead_links/log.db") as con:
         link_status TEXT
         )""")
 
-    for link in log:
-        cur.execute("INSERT INTO links VALUES(NULL, ?, ?)", link)
+    cur.executemany("INSERT INTO links VALUES(NULL, ?, ?)", log)
 
 print('\nEND')
 
