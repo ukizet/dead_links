@@ -27,11 +27,6 @@ links = soup.find_all('a')
 
 log = ()
 
-def logWriteClose(log):
-    logTxt = open('C:/Users/ukika/Desktop/learnPython3/dead_links/log.txt', 'w')
-    logTxt.write(str(log))
-    logTxt.close()
-
 for link in links:
     try:
         link_url = link.get('href')
@@ -70,10 +65,7 @@ for link in links:
     except TypeError:
         print('\n')
 
-logWriteClose(log)
-
-
-with sq.connect("log.db") as con:
+with sq.connect("dead_links/log.db") as con:
     cur = con.cursor()
 
     cur.execute("DROP TABLE IF EXISTS links")
