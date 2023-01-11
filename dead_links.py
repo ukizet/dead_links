@@ -1,6 +1,7 @@
 import requests
 from tkinter import *
 from bs4 import BeautifulSoup
+import sqlite3 as sq
 
 root = Tk()
 
@@ -69,8 +70,22 @@ for link in links:
     except TypeError:
         print('\n')
 
-
 logWriteClose(log)
+
+
+with sq.connect("log.db") as con:
+    cur = con.cursor()
+
+    cur.execute("DROP TABLE IF EXISTS links")
+    cur.execute("""CREATE TABLE IF NOT EXISTS links (
+        link_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        url TEXT,
+        link_status TEXT
+        )""")
+
+    for link in log:
+        cur.execute("INSERT INTO links VALUES(NULL, ?, ?)", link)
+
 print('\nEND')
 
 
