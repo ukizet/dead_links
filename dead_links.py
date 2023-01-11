@@ -1,8 +1,22 @@
 import requests
-import sys
+from tkinter import *
 from bs4 import BeautifulSoup
 
-main_url = 'https://www.seoptimer.com/blog/broken-links/'
+root = Tk()
+
+def pass_link(event):
+    global main_url
+    main_url = e1.get()
+    root.quit()
+
+Label(root, text="Enter URL").grid(row=0)
+e1 = Entry(root)
+e1.grid(row=0, column=1)
+
+root.bind('<Return>', pass_link)
+
+mainloop()
+
 
 page = requests.get(main_url)
 
