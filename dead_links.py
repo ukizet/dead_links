@@ -5,7 +5,7 @@ import sqlite3 as sq
 
 root = Tk()
 
-# creating function that will recieve link from user
+# creating function that will recieve link from user j
 
 def pass_link(event):
     # creating a global variable that will keep a url entered by user
