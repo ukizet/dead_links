@@ -3,115 +3,131 @@ from tkinter import *
 from bs4 import BeautifulSoup
 import sqlite3 as sq
 
-root = Tk()
-
 # creating function that will recieve link from user
-
 def pass_link(event):
     # creating a global variable that will keep a url entered by user
     global main_url
     main_url = e1.get()
     root.quit()
 
-# making "GUI" of the program
+def make_GUI():
+    # making "GUI" of the program
+    Label(root, text="Enter URL").grid(row=0)
+    global e1
+    e1 = Entry(root)
+    e1.grid(row=0, column=1)
 
-Label(root, text="Enter URL").grid(row=0)
-e1 = Entry(root)
-e1.grid(row=0, column=1)
+def working_with_tk():
+    global root
 
-# binding enter to call pass_link function
+    root = Tk()
 
-root.bind('<Return>', pass_link)
+    make_GUI()
 
-mainloop()
+    # binding enter to call pass_link function
 
-# getting smth from url.. maybe getting html code..
+    root.bind('<Return>', pass_link)
 
-page = requests.get(main_url)
+    # open/creating tkinter window
 
-# parsing page
+    mainloop()
 
-soup = BeautifulSoup(page.text, 'html.parser')
+def make_log_db():
+    # making log db file
+    with sq.connect("dead_links/log.db") as con:
+        cur = con.cursor()
 
-# searching all links that page have
+        cur.execute("DROP TABLE IF EXISTS links")
+        cur.execute("""CREATE TABLE IF NOT EXISTS links (
+            link_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            url TEXT,
+            link_status TEXT
+            )""")
 
-links = soup.find_all('a')
+        cur.executemany("INSERT INTO links VALUES(NULL, ?, ?)", log)
 
-# creating log string for.. logs.. But with sqlite we don't really need this, i should delete it
+def parsing_site():
+    # getting smth from url.. maybe getting html code..
 
-log = ()
+    page = requests.get(main_url)
 
-# starting cycle that will check all links for malfunction
+    # parsing page
 
-for link in links:
-    try:
-        # receiving links from href arguments
+    soup = BeautifulSoup(page.text, 'html.parser')
 
-        link_url = link.get('href')
+    # searching all links that page have
 
-        # checking if link_url varible is not empty
+    links = soup.find_all('a')
 
-        if link_url is None:
-            continue
-        if link_url == '':
-            continue
+    # creating log string for.. logs.. But with sqlite (see below) we don't really need this. I should delete it..
 
-        # checking if link_url varible dont starts with '/'
+    global log
 
-        if link_url[0] == '/':
-            full_link_url = main_url + link_url[1:]
+    log = ()
 
-        # checking if link_url varible dont starts with '#'
+    # starting cycle that will check all links for malfunction
 
-        elif link_url[0] == '#':
-            full_link_url = main_url + link_url
-        else:
-            full_link_url = link_url
+    for link in links:
+        try:
+            # receiving links from href arguments
 
-        # getting site status code
+            link_url = link.get('href')
 
-        response = requests.get(full_link_url)
-        if response.status_code == 404:
-            link_status = 'Link is not working'
-            log += ((full_link_url, link_status),)
-            print('Link is not working:', full_link_url)
-        else:
-            link_status = 'Link is working'
-            log += ((full_link_url, link_status),)
-            print('Link is working:', full_link_url)
+            # checking if link_url varible is not empty
 
-    # working with possible exceptions
+            if link_url is None:
+                continue
+            if link_url == '':
+                continue
 
-    except NameError:
-        print(f'NameError: {full_link_url}, {link_url}')
-        print('\n')
-    except IndexError:
-        print(f'IndexError: {full_link_url}, {link_url}')
-        print('\n')
-    except requests.exceptions.InvalidSchema:
-        print(
-            f'requests.exceptions.InvalidSchema: {full_link_url}, {link_url}')
-        print('\n')
-    except TypeError:
-        print(f'TypeError: {full_link_url}, {link_url}')
-        print('\n')
-    except requests.exceptions.MissingSchema:
-        print(
-            f'requests.exceptions.MissingSchema: {full_link_url}, {link_url}')
-        print('\n')
+            # checking if link_url varible dont starts with '/'
 
-# making log db file
+            if link_url[0] == '/':
+                full_link_url = main_url + link_url[1:]
 
-with sq.connect("dead_links/log.db") as con:
-    cur = con.cursor()
+            # checking if link_url varible dont starts with '#'
 
-    cur.execute("DROP TABLE IF EXISTS links")
-    cur.execute("""CREATE TABLE IF NOT EXISTS links (
-        link_id INTEGER PRIMARY KEY AUTOINCREMENT,
-        url TEXT,
-        link_status TEXT
-        )""")
+            elif link_url[0] == '#':
+                full_link_url = main_url + link_url
+            else:
+                full_link_url = link_url
 
-    cur.executemany("INSERT INTO links VALUES(NULL, ?, ?)", log)
+            # getting site status code
 
-print('\nEND')
+            response = requests.get(full_link_url)
+            if response.status_code == 404:
+                link_status = 'Link is not working'
+                log += ((full_link_url, link_status),)
+                print('Link is not working:', full_link_url)
+            else:
+                link_status = 'Link is working'
+                log += ((full_link_url, link_status),)
+                print('Link is working:', full_link_url)
+                print('\n')
+
+        # working with possible exceptions
+
+        except NameError:
+            print(f'NameError: {full_link_url}, {link_url}')
+            print('\n')
+        except IndexError:
+            print(f'IndexError: {full_link_url}, {link_url}')
+            print('\n')
+        except requests.exceptions.InvalidSchema:
+            print(
+                f'requests.exceptions.InvalidSchema: {full_link_url}, {link_url}')
+            print('\n')
+        except TypeError:
+            print(f'TypeError: {full_link_url}, {link_url}')
+            print('\n')
+        except requests.exceptions.MissingSchema:
+            print(
+                f'requests.exceptions.MissingSchema: {full_link_url}, {link_url}')
+            print('\n')
+
+if __name__ == "__main__":
+    working_with_tk()
+    parsing_site()
+    make_log_db()
+
+    print('\nEND')
