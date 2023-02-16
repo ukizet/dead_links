@@ -124,10 +124,13 @@ def parsing_site():
             print(
                 f'requests.exceptions.MissingSchema: {full_link_url}, {link_url}')
             print('\n')
-
-if __name__ == "__main__":
+    
+def main():
     working_with_tk()
     parsing_site()
     make_log_db()
 
     print('\nEND')
+    
+if __name__ == "__main__":
+    main()
